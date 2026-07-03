@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Full franchise-style gym build-out checklist with new vs used equipment pricing tabs, USD conversion, monthly rent, staffing costs, and light/dark mode.">
+<title>Loadout Manifest — Full Gym Build-Out</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #1c1b19;
+    --surface: #262420;
+    --surface-2: #2f2c26;
+    --line: #3a362e;
+    --chalk: #ddd0a8;
+    --chalk-dim: #a89f82;
+    --iron: #b5502a;
+    --iron-bright: #d66a3f;
+    --text: #ede8dd;
+    --text-dim: #9c9686;
+    --ok: #7f9b6e;
+    --warn: #d6a23f;
+  }
+  [data-theme="light"]{
+    --bg: #fbf9f4;
+    --surface: #ffffff;
+    --surface-2: #f1eee5;
+    --line: #ddd6c4;
+    --chalk: #201e1a;
+    --chalk-dim: #5c5646;
+    --iron: #b5502a;
+    --iron-bright: #963f20;
+    --text: #211f1c;
+    --text-dim: #6b6656;
+    --ok: #4f7a3c;
+    --warn: #a87418;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);}
+  body{font-family:'IBM Plex Sans', sans-serif; min-height:100vh; padding:0 0 80px; transition:background .25s ease, color .25s ease;}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px;}
+
+  .theme-toggle{
+    position:fixed; top:16px; right:16px; z-index:30;
+    width:40px; height:40px; border-radius:50%;
+    background:var(--surface); border:1px solid var(--line);
+    color:var(--chalk); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 2px 8px rgba(0,0,0,0.25);
+  }
+  .theme-toggle:hover{border-color:var(--iron-bright); color:var(--iron-bright);}
+  .theme-toggle svg{width:19px; height:19px;}
+  .theme-toggle .icon-moon{display:none;}
+  [data-theme="light"] .theme-toggle .icon-sun{display:none;}
+  [data-theme="light"] .theme-toggle .icon-moon{display:block;}
+
+  header{
+    padding:36px 20px 24px;
+    border-bottom:1px solid var(--line);
+    background: repeating-linear-gradient(135deg, rgba(255,255,255,0.015) 0 2px, transparent 2px 14px);
+  }
+  [data-theme="light"] header{background: repeating-linear-gradient(135deg, rgba(0,0,0,0.012) 0 2px, transparent 2px 14px);}
+  .eyebrow{font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--iron-bright); margin:0 0 10px;}
+  h1{font-family:'Oswald', sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.01em; font-size:clamp(28px,6vw,40px); margin:0 0 8px; color:var(--chalk); max-width:600px;}
+  header p{font-size:14.5px; color:var(--text-dim); margin:0; max-width:560px; line-height:1.55;}
+
+  /* Tab bar */
+  .tabbar-wrap{max-width:760px; margin:0 auto; padding:0 20px; position:sticky; top:0; z-index:6; background:var(--bg);}
+  .tabbar{display:flex; gap:6px; padding:14px 0 0; border-bottom:1px solid var(--line);}
+  .tab-btn{
+    flex:1; text-align:center; padding:12px 10px 10px;
+    font-family:'Oswald',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:.03em; font-size:13.5px;
+    background:none; border:none; color:var(--text-dim); cursor:pointer;
+    border-bottom:2.5px solid transparent; margin-bottom:-1px;
+  }
+  .tab-btn .sub{display:block; font-family:'IBM Plex Mono',monospace; font-weight:400; text-transform:none; letter-spacing:0; font-size:10.5px; color:var(--text-dim); margin-top:3px;}
+  .tab-btn.active{color:var(--iron-bright); border-bottom-color:var(--iron-bright);}
+  .tab-btn:hover:not(.active){color:var(--chalk);}
+
+  .barbell{max-width:760px;margin:0 auto;padding:18px 20px 26px; border-bottom:1px solid var(--line); position:sticky; top:57px; z-index:5; background:var(--bg);}
+  .bb-row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; gap:12px; flex-wrap:wrap;}
+  .bb-label{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-dim);}
+  .bb-total{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:19px; color:var(--chalk);}
+  .track{position:relative; height:14px; background:var(--surface-2); border:1px solid var(--line); border-radius:2px; overflow:hidden;}
+  .fill{height:100%; width:0%; background:linear-gradient(90deg, var(--iron), var(--iron-bright)); transition:width .35s ease, background .35s ease;}
+  .bb-marks{display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--text-dim); margin-top:6px;}
+  .status-line{margin-top:10px; font-size:12.5px; color:var(--text-dim); font-family:'IBM Plex Mono',monospace;}
+  .status-line strong{color:var(--chalk);}
+
+  .category{margin:34px 0;}
+  .cat-head{display:flex; align-items:baseline; gap:10px; margin:0 0 14px; padding-bottom:8px; border-bottom:1px solid var(--line); flex-wrap:wrap;}
+  .cat-num{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--iron-bright);}
+  .cat-title{font-family:'Oswald',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:.03em; font-size:16px; color:var(--chalk); flex:1;}
+  .cat-sub{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--text-dim);}
+  .cat-subtotal{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--chalk-dim); white-space:nowrap;}
+
+  .item{display:grid; grid-template-columns:22px 48px 1fr auto auto; gap:14px; align-items:center; padding:12px 10px; border-bottom:1px solid var(--line);}
+  .item:last-child{border-bottom:none;}
+
+  input[type="checkbox"]{
+    appearance:none; -webkit-appearance:none; width:20px; height:20px;
+    border:1.5px solid var(--text-dim); border-radius:3px; background:var(--surface-2);
+    cursor:pointer; position:relative; flex-shrink:0;
+  }
+  input[type="checkbox"]:checked{background:var(--iron); border-color:var(--iron-bright);}
+  input[type="checkbox"]:checked::after{
+    content:""; position:absolute; left:6px; top:2px; width:5px; height:10px;
+    border:solid var(--bg); border-width:0 2px 2px 0; transform:rotate(40deg);
+  }
+  input[type="checkbox"]:focus-visible{outline:2px solid var(--iron-bright); outline-offset:2px;}
+
+  .thumb{width:48px; height:48px; border-radius:5px; background:var(--surface-2); border:1px solid var(--line); overflow:hidden; position:relative; flex-shrink:0;}
+  .thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+  .thumb .fallback{position:absolute; inset:0; display:none; align-items:center; justify-content:center; color:var(--chalk-dim);}
+  .thumb.no-photo img{display:none;}
+  .thumb.no-photo .fallback{display:flex;}
+  .thumb .fallback svg{width:22px; height:22px;}
+
+  .item-name{font-size:14.5px; color:var(--text); line-height:1.3;}
+  .item-name .note{display:block; font-size:12px; color:var(--text-dim); margin-top:2px;}
+  .item.done .item-name{color:var(--text-dim); text-decoration:line-through; text-decoration-color:var(--line);}
+
+  .qty{display:flex; align-items:center; gap:6px; font-family:'IBM Plex Mono',monospace;}
+  .qty button{width:24px;height:24px; background:var(--surface-2); border:1px solid var(--line); color:var(--chalk); border-radius:3px; cursor:pointer; font-size:14px; line-height:1; display:flex;align-items:center;justify-content:center;}
+  .qty button:hover{border-color:var(--iron-bright); color:var(--iron-bright);}
+  .qty span{min-width:16px; text-align:center; font-size:13px;}
+
+  .price{font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--chalk-dim); text-align:right; min-width:140px; line-height:1.35;}
+  .item.done .price{color:var(--ok);}
+
+  @media (max-width:560px){
+    .item{grid-template-columns:20px 40px 1fr; row-gap:8px;}
+    .thumb{width:40px;height:40px;}
+    .qty, .price{grid-column:3; justify-self:start;}
+    .price{text-align:left; margin-top:-4px;}
+    .barbell{top:80px;}
+  }
+
+  .overhead{margin:44px 0; padding-top:8px; border-top:2px solid var(--line);}
+  .overhead-head{display:flex; align-items:baseline; gap:10px; margin:0 0 6px;}
+  .overhead-title{font-family:'Oswald',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.02em; font-size:19px; color:var(--chalk);}
+  .overhead-note{font-size:13px; color:var(--text-dim); margin:0 0 18px; line-height:1.5; max-width:560px;}
+
+  .field-card{background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:16px 18px; margin-bottom:14px;}
+  .field-row{display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;}
+  .field-label{font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--text-dim);}
+  .field-input-group{display:flex; align-items:center; gap:8px;}
+  .prefix{font-family:'IBM Plex Mono',monospace; color:var(--chalk-dim); font-size:14px;}
+  input[type="number"]{
+    width:110px; background:var(--surface-2); border:1px solid var(--line); color:var(--chalk);
+    font-family:'IBM Plex Mono',monospace; font-size:14px; padding:7px 9px; border-radius:4px;
+  }
+  input[type="number"]:focus{outline:1.5px solid var(--iron-bright); border-color:var(--iron-bright);}
+  .field-result{font-family:'IBM Plex Mono',monospace; font-size:14.5px; color:var(--chalk); text-align:right;}
+
+  .emp-card{background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:16px 18px; margin-bottom:14px; position:relative;}
+  .emp-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+  .emp-title{font-family:'Oswald',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:.03em; font-size:13.5px; color:var(--iron-bright);}
+  .emp-remove{background:none; border:1px solid var(--line); color:var(--text-dim); width:24px;height:24px; border-radius:4px; cursor:pointer; font-size:14px; line-height:1;}
+  .emp-remove:hover{color:var(--iron-bright); border-color:var(--iron-bright);}
+  .emp-fields{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;}
+  .emp-field label{display:block; font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--text-dim); margin-bottom:5px;}
+  .emp-field input{width:100%;}
+  .emp-monthly{display:flex; justify-content:space-between; align-items:baseline; padding-top:10px; border-top:1px dashed var(--line); font-family:'IBM Plex Mono',monospace;}
+  .emp-monthly-label{font-size:11.5px; color:var(--text-dim);}
+  .emp-monthly-value{font-size:14.5px; color:var(--chalk);}
+
+  .add-emp-btn{
+    display:flex; align-items:center; gap:8px; width:100%; justify-content:center;
+    background:var(--surface-2); border:1px dashed var(--line); color:var(--chalk-dim);
+    font-family:'IBM Plex Mono',monospace; font-size:13px; text-transform:uppercase; letter-spacing:.05em;
+    padding:12px; border-radius:6px; cursor:pointer; margin-bottom:8px;
+  }
+  .add-emp-btn:hover{border-color:var(--iron-bright); color:var(--iron-bright);}
+  .add-emp-btn .plus{font-size:16px; line-height:1;}
+
+  .overhead-total{
+    display:flex; justify-content:space-between; align-items:baseline; margin-top:16px;
+    padding:14px 18px; background:var(--surface-2); border:1px solid var(--line); border-radius:6px;
+  }
+  .overhead-total-label{font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--text-dim);}
+  .overhead-total-value{font-family:'IBM Plex Mono',monospace; font-size:16px; color:var(--chalk); font-weight:600;}
+
+  .grand-total{
+    margin:44px 0 0; padding:20px; border:1.5px solid var(--iron); border-radius:8px;
+    background:linear-gradient(180deg, rgba(181,80,42,0.08), transparent);
+  }
+  .grand-total-row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; flex-wrap:wrap; gap:8px;}
+  .grand-total-row:last-child{margin-bottom:0;}
+  .grand-total-label{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em;}
+  .grand-total-value{font-family:'IBM Plex Mono',monospace; font-size:14.5px; color:var(--chalk);}
+  .grand-total-value.big{font-size:18px; font-weight:600; color:var(--iron-bright);}
+
+  footer{max-width:760px;margin:0 auto; padding:20px; font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--text-dim); border-top:1px solid var(--line); line-height:1.6;}
+  footer a{color:var(--chalk-dim);}
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle light and dark mode">
+  <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8l1.8-1.8M18 6l1.8-1.8"/></svg>
+  <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+</button>
+
+<header>
+  <div class="wrap">
+    <p class="eyebrow">Manifest No. 005 — Full Gym Build-Out</p>
+    <h1>Franchise-Style Equipment &amp; Fixtures</h1>
+    <p>Everything typically found in a franchise gym like Anytime Fitness, plus monthly rent and staffing. Prices shown as ₱[amount] ($[amount]) at approx ₱61.4/$1. Switch tabs below to compare buying new vs. sourcing used/pre-owned.</p>
+  </div>
+</header>
+
+<div class="tabbar-wrap">
+  <div class="tabbar">
+    <button type="button" class="tab-btn active" id="tabNewBtn">New Equipment<span class="sub">Stark Fitness PH & retail estimates</span></button>
+    <button type="button" class="tab-btn" id="tabUsedBtn">Used / Pre-Owned<span class="sub">Marketplace, Carousell, resale estimates</span></button>
+  </div>
+</div>
+
+<div class="barbell">
+  <div class="wrap" style="padding:0;">
+    <div class="bb-row">
+      <span class="bb-label" id="totalLabel">Equipment running total (new)</span>
+      <span class="bb-total" id="total"></span>
+    </div>
+    <div class="track"><div class="fill" id="fill"></div></div>
+    <div class="bb-marks"><span>₱0</span><span id="fullMark">Full build-out</span></div>
+    <div class="status-line" id="statusLine">Nothing checked yet — tick items as you source or budget for them.</div>
+  </div>
+</div>
+
+<div class="wrap" id="categories"></div>
+
+<div class="wrap">
+  <div class="overhead" id="rentSection">
+    <div class="overhead-head"><span class="overhead-title">Rent / Mortgage</span></div>
+    <p class="overhead-note">Monthly space cost. Adjust to match your actual quote — QC secondary-area rates for a small floor run roughly ₱15,000-₱90,000/month depending on size and location. (Shared across both tabs — rent doesn't change based on new vs. used equipment.)</p>
+    <div class="field-card">
+      <div class="field-row">
+        <span class="field-label">Monthly amount</span>
+        <div class="field-input-group">
+          <span class="prefix">₱</span>
+          <input type="number" id="rentInput" value="20000" min="0" step="500">
+        </div>
+        <div class="field-result" id="rentResult"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overhead" id="staffSection">
+    <div class="overhead-head"><span class="overhead-title">Staffing</span></div>
+    <p class="overhead-note">Add an employee card per staff member. Monthly pay = days/week x 4.33 (avg weeks/month) x pay/day. (Also shared across both tabs.)</p>
+    <div id="employeeList"></div>
+    <button type="button" class="add-emp-btn" id="addEmpBtn"><span class="plus">+</span> Add employee</button>
+    <div class="overhead-total">
+      <span class="overhead-total-label">Payroll total / mo</span>
+      <span class="overhead-total-value" id="payrollResult"></span>
+    </div>
+  </div>
+
+  <div class="grand-total">
+    <div class="grand-total-row">
+      <span class="grand-total-label" id="gtEquipLabel">Equipment, new (one-time)</span>
+      <span class="grand-total-value" id="gtEquip"></span>
+    </div>
+    <div class="grand-total-row">
+      <span class="grand-total-label">Rent + Payroll (monthly)</span>
+      <span class="grand-total-value big" id="gtMonthly"></span>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Prices are estimated PHP averages for the Philippine market — actual costs vary by supplier, condition, region, and negotiated wages. Confirm current quotes and a live FX rate before committing capital.<br>
+  Add your own photos — see <a href="images/README.md">images/README.md</a> for filenames (shared between both tabs).<br>
+  Light/dark mode follows your system preference by default and resets on reload (no cookies or local storage used). Tab selection also resets on reload.
+</footer>
+
+<script>
+const FX_RATE = 61.4; // PHP per 1 USD, approx July 2026 mid-market rate
+
+const CATEGORIES = [
+  { name: "Free weights & strength", sub: "core of the session" },
+  { name: "Cardio machines", sub: "the floor members see first" },
+  { name: "Strength machines", sub: "selectorized & plate-loaded" },
+  { name: "Conditioning & functional", sub: "HIIT engines" },
+  { name: "Flooring & rig", sub: "the surface you build on" },
+  { name: "Facility fixtures & fit-out", sub: "mirrors, light, HVAC" },
+  { name: "Amenities & front-of-house", sub: "member experience" },
+  { name: "Signage & wayfinding", sub: "safety & navigation" },
+  { name: "Accessories & logistics", sub: "the last 10%" },
+];
+
+const ICONS = {
+  "Free weights & strength": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 12h16"/><rect x="2" y="9" width="3" height="6" rx="0.5"/><rect x="19" y="9" width="3" height="6" rx="0.5"/><rect x="6" y="7" width="2.4" height="10" rx="0.5"/><rect x="15.6" y="7" width="2.4" height="10" rx="0.5"/></svg>`,
+  "Cardio machines": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h3l2-5 3 9 2-6 2 3h6"/></svg>`,
+  "Strength machines": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>`,
+  "Conditioning & functional": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c1.5-4 3-4 4.5 0s3 4 4.5 0 3-4 4.5 0 3 4 4.5 0"/></svg>`,
+  "Flooring & rig": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>`,
+  "Facility fixtures & fit-out": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3 11.2c.6.4 1 1.1 1 1.8h4c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3Z"/></svg>`,
+  "Amenities & front-of-house": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4"/><path d="M10.5 11.5 20 2M16 6l2 2M13 9l2 2"/></svg>`,
+  "Signage & wayfinding": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h13M13 6l6 6-6 6"/></svg>`,
+  "Accessories & logistics": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h18v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8Z"/><path d="M8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`
+};
+
+// ---------- NEW equipment pricing ----------
+const DATA_NEW = [
+  { cat: "Free weights & strength", name: "Kettlebell set (8/12/16/20/24kg)", note: "2 sets for class rotation", low: 8000, high: 12000, defQty: 2, img: "kettlebell-set" },
+  { cat: "Free weights & strength", name: "Bumper / iron plates, pairs (various)", note: "5-20kg range", low: 15000, high: 25000, defQty: 1, img: "bumper-plates" },
+  { cat: "Free weights & strength", name: "Olympic barbell", note: "7ft - Stark Fitness PH", low: 7800, high: 7800, defQty: 2, img: "olympic-barbell" },
+  { cat: "Free weights & strength", name: "Adjustable dumbbell set", note: "or fixed-weight pairs", low: 10000, high: 15000, defQty: 1, img: "adjustable-dumbbells" },
+  { cat: "Free weights & strength", name: "Flat/adjustable bench", low: 2000, high: 3500, defQty: 2, img: "flat-bench" },
+  { cat: "Free weights & strength", name: "Half rack / power rack", note: "Stark Fitness PH SF-PRO2-HR", low: 83900, high: 83900, defQty: 1, img: "squat-rack" },
+  { cat: "Free weights & strength", name: "Pre-loaded fixed barbell set", note: "beginner-friendly, 20-120lb range", low: 35000, high: 35000, defQty: 1, img: "fixed-barbells" },
+
+  { cat: "Cardio machines", name: "Treadmill (commercial)", note: "Stark Fitness PH Pro Series T7, from-price", low: 267000, high: 267000, defQty: 5, img: "treadmill" },
+  { cat: "Cardio machines", name: "Elliptical trainer", note: "Stark Fitness PH Pro Series", low: 285000, high: 285000, defQty: 2, img: "elliptical" },
+  { cat: "Cardio machines", name: "Stationary / spin bike", note: "Stark Fitness PH commercial spin bike", low: 56000, high: 56000, defQty: 4, img: "spin-bike" },
+  { cat: "Cardio machines", name: "Stair climber", low: 180000, high: 180000, defQty: 1, img: "stair-climber" },
+
+  { cat: "Strength machines", name: "Cable crossover / functional trainer", note: "Stark Fitness PH SF-PRO2-FT", low: 183300, high: 183300, defQty: 1, img: "cable-crossover" },
+  { cat: "Strength machines", name: "Lat pulldown / low row combo", note: "Stark Fitness PH SF-PRO1-HPLT", low: 202000, high: 202000, defQty: 1, img: "lat-pulldown" },
+  { cat: "Strength machines", name: "Leg press machine", note: "Stark Fitness PH SF-PRO1-PLLP", low: 197000, high: 197000, defQty: 1, img: "leg-press" },
+  { cat: "Strength machines", name: "Leg extension / curl machine", note: "Stark Fitness PH SF-PRO1-LCLE combo", low: 196000, high: 196000, defQty: 1, img: "leg-extension-curl" },
+  { cat: "Strength machines", name: "Chest press machine", note: "Stark Fitness PH SF-PRO1-CP", low: 208000, high: 208000, defQty: 1, img: "chest-press" },
+  { cat: "Strength machines", name: "Smith machine", note: "Stark Fitness PH SF-SC1-SM", low: 203000, high: 203000, defQty: 1, img: "smith-machine" },
+
+  { cat: "Conditioning & functional", name: "Rowing machine (commercial)", note: "Stark Fitness PH SF-SC-ROW1", low: 151000, high: 151000, defQty: 1, img: "rowing-machine" },
+  { cat: "Conditioning & functional", name: "Air bike / assault bike", low: 12000, high: 18000, defQty: 1, img: "air-bike" },
+  { cat: "Conditioning & functional", name: "Battle rope", low: 2000, high: 3500, defQty: 1, img: "battle-rope" },
+  { cat: "Conditioning & functional", name: "Slam balls / medicine balls, set", note: "Stark Fitness PH, from P850/unit", low: 3000, high: 3000, defQty: 1, img: "slam-balls" },
+  { cat: "Conditioning & functional", name: "Jump ropes", note: "x10, Stark Fitness PH avg (PVC/steel/digital)", low: 4000, high: 4000, defQty: 1, img: "jump-ropes" },
+  { cat: "Conditioning & functional", name: "TRX-style suspension trainer", note: "Stark Fitness PH Cross Suspension Trainer", low: 2800, high: 2800, defQty: 3, img: "trx-trainer" },
+  { cat: "Conditioning & functional", name: "Foam rollers, set", low: 1500, high: 1500, defQty: 1, img: "foam-rollers" },
+  { cat: "Conditioning & functional", name: "Stretch / yoga mats", low: 500, high: 500, defQty: 10, img: "stretch-mats" },
+
+  { cat: "Flooring & rig", name: "Rubber floor mat (1m x 1m tile)", note: "Stark Fitness PH retail rate, ~P2,500/sqm - qty = sqm needed", low: 2500, high: 2500, defQty: 100, img: "rubber-flooring" },
+  { cat: "Flooring & rig", name: "Pull-up rig / frame", low: 10000, high: 18000, defQty: 1, img: "pull-up-rig" },
+  { cat: "Flooring & rig", name: "Plyo boxes", note: "x3, mixed heights", low: 4500, high: 7500, defQty: 1, img: "plyo-boxes" },
+  { cat: "Flooring & rig", name: "Cardio-zone flooring (carpet/vinyl)", low: 60000, high: 60000, defQty: 1, img: "cardio-flooring" },
+
+  { cat: "Facility fixtures & fit-out", name: "Wall mirrors (mirrored wall install)", low: 80000, high: 80000, defQty: 1, img: "wall-mirrors" },
+  { cat: "Facility fixtures & fit-out", name: "Overhead LED light fixture", low: 2200, high: 2200, defQty: 20, img: "led-light-fixture" },
+  { cat: "Facility fixtures & fit-out", name: "HVAC / ventilation system", low: 250000, high: 250000, defQty: 1, img: "hvac-system" },
+  { cat: "Facility fixtures & fit-out", name: "Sound system (ceiling speakers + amp)", low: 35000, high: 35000, defQty: 1, img: "sound-system" },
+  { cat: "Facility fixtures & fit-out", name: "CCTV security camera system", low: 45000, high: 45000, defQty: 1, img: "cctv-system" },
+  { cat: "Facility fixtures & fit-out", name: "Key fob / access control system", low: 80000, high: 80000, defQty: 1, img: "access-control" },
+
+  { cat: "Amenities & front-of-house", name: "Front desk / reception counter", low: 60000, high: 60000, defQty: 1, img: "front-desk" },
+  { cat: "Amenities & front-of-house", name: "Lockers", note: "per unit", low: 2200, high: 2200, defQty: 20, img: "lockers" },
+  { cat: "Amenities & front-of-house", name: "Restroom fixtures / renovation", low: 150000, high: 150000, defQty: 1, img: "restroom-fixtures" },
+  { cat: "Amenities & front-of-house", name: "Water fountain / filtered station", low: 25000, high: 25000, defQty: 1, img: "water-fountain" },
+  { cat: "Amenities & front-of-house", name: "Hand towels", note: "per dozen, bulk (consumable - same price either tab)", low: 1200, high: 1200, defQty: 10, img: "hand-towels" },
+  { cat: "Amenities & front-of-house", name: "Equipment wipe-down station", note: "spray + paper towel dispenser (consumable)", low: 1500, high: 1500, defQty: 4, img: "wipe-down-station" },
+  { cat: "Amenities & front-of-house", name: "Vending machine", low: 60000, high: 60000, defQty: 1, img: "vending-machine" },
+
+  { cat: "Signage & wayfinding", name: "LED exit sign", note: "PH market avg, ~P415-P1,100/unit range; 5 units", low: 800, high: 800, defQty: 5, img: "exit-signage" },
+  { cat: "Signage & wayfinding", name: "Zone / wayfinding signage package", low: 15000, high: 15000, defQty: 1, img: "wayfinding-signage" },
+  { cat: "Signage & wayfinding", name: "Muscle-group instructional posters", low: 10000, high: 10000, defQty: 1, img: "instructional-posters" },
+  { cat: "Signage & wayfinding", name: "AED unit + signage", low: 90000, high: 90000, defQty: 1, img: "aed-unit" },
+
+  { cat: "Accessories & logistics", name: "Resistance band set", note: "Stark Fitness PH, from P200/band", low: 1200, high: 1200, defQty: 1, img: "resistance-bands" },
+  { cat: "Accessories & logistics", name: "Agility ladder + cone kit", note: "Stark Fitness PH Speedstep Ladder + Quick Cone Kit", low: 5200, high: 5200, defQty: 1, img: "agility-ladder" },
+  { cat: "Accessories & logistics", name: "Interval timer + portable speaker", low: 3000, high: 5000, defQty: 1, img: "interval-timer" },
+  { cat: "Accessories & logistics", name: "First aid kit", note: "buy new regardless of tab - safety item", low: 1000, high: 1800, defQty: 1, img: "first-aid-kit" },
+];
+
+// ---------- USED / PRE-OWNED equipment pricing ----------
+const DATA_USED = [
+  { cat: "Free weights & strength", name: "Kettlebell set (8/12/16/20/24kg)", note: "2 sets, used - FB Marketplace/Carousell", low: 4500, high: 6500, defQty: 2, img: "kettlebell-set" },
+  { cat: "Free weights & strength", name: "Bumper / iron plates, pairs (various)", note: "5-20kg range, used", low: 8000, high: 14000, defQty: 1, img: "bumper-plates" },
+  { cat: "Free weights & strength", name: "Olympic barbell", note: "7ft, used", low: 3500, high: 4500, defQty: 2, img: "olympic-barbell" },
+  { cat: "Free weights & strength", name: "Adjustable dumbbell set", note: "used, or fixed-weight pairs", low: 5500, high: 8000, defQty: 1, img: "adjustable-dumbbells" },
+  { cat: "Free weights & strength", name: "Flat/adjustable bench", note: "used", low: 1200, high: 2000, defQty: 2, img: "flat-bench" },
+  { cat: "Free weights & strength", name: "Half rack / power rack", note: "used, steel holds value well", low: 30000, high: 40000, defQty: 1, img: "squat-rack" },
+  { cat: "Free weights & strength", name: "Pre-loaded fixed barbell set", note: "used, beginner-friendly range", low: 15000, high: 20000, defQty: 1, img: "fixed-barbells" },
+
+  { cat: "Cardio machines", name: "Treadmill (commercial)", note: "used, ~35-40% of new commercial price", low: 90000, high: 110000, defQty: 5, img: "treadmill" },
+  { cat: "Cardio machines", name: "Elliptical trainer", note: "used, ~35-40% of new", low: 100000, high: 120000, defQty: 2, img: "elliptical" },
+  { cat: "Cardio machines", name: "Stationary / spin bike", note: "used", low: 20000, high: 26000, defQty: 4, img: "spin-bike" },
+  { cat: "Cardio machines", name: "Stair climber", note: "used", low: 60000, high: 80000, defQty: 1, img: "stair-climber" },
+
+  { cat: "Strength machines", name: "Cable crossover / functional trainer", note: "used commercial", low: 65000, high: 85000, defQty: 1, img: "cable-crossover" },
+  { cat: "Strength machines", name: "Lat pulldown / low row combo", note: "used commercial", low: 70000, high: 90000, defQty: 1, img: "lat-pulldown" },
+  { cat: "Strength machines", name: "Leg press machine", note: "used commercial", low: 68000, high: 88000, defQty: 1, img: "leg-press" },
+  { cat: "Strength machines", name: "Leg extension / curl machine", note: "used commercial combo", low: 68000, high: 88000, defQty: 1, img: "leg-extension-curl" },
+  { cat: "Strength machines", name: "Chest press machine", note: "used commercial", low: 70000, high: 92000, defQty: 1, img: "chest-press" },
+  { cat: "Strength machines", name: "Smith machine", note: "used commercial", low: 70000, high: 90000, defQty: 1, img: "smith-machine" },
+
+  { cat: "Conditioning & functional", name: "Rowing machine (e.g. Concept2)", note: "used, genuinely common resale item", low: 15000, high: 25000, defQty: 1, img: "rowing-machine" },
+  { cat: "Conditioning & functional", name: "Air bike / assault bike", note: "used", low: 8000, high: 13000, defQty: 1, img: "air-bike" },
+  { cat: "Conditioning & functional", name: "Battle rope", note: "used", low: 1500, high: 2500, defQty: 1, img: "battle-rope" },
+  { cat: "Conditioning & functional", name: "Slam balls / medicine balls, set", note: "used", low: 1800, high: 2800, defQty: 1, img: "slam-balls" },
+  { cat: "Conditioning & functional", name: "Jump ropes", note: "x10, rarely bought used - budget new", low: 1200, high: 1800, defQty: 1, img: "jump-ropes" },
+  { cat: "Conditioning & functional", name: "TRX-style suspension trainer", note: "used", low: 1500, high: 2200, defQty: 3, img: "trx-trainer" },
+  { cat: "Conditioning & functional", name: "Foam rollers, set", note: "used", low: 700, high: 1000, defQty: 1, img: "foam-rollers" },
+  { cat: "Conditioning & functional", name: "Stretch / yoga mats", note: "used - hygiene tradeoff worth weighing", low: 250, high: 350, defQty: 10, img: "stretch-mats" },
+
+  { cat: "Flooring & rig", name: "Interlocking rubber mats", note: "used/salvaged, ~100 sqm coverage", low: 1000, high: 1400, defQty: 100, img: "rubber-flooring" },
+  { cat: "Flooring & rig", name: "Pull-up rig / frame", note: "used or built from reclaimed steel", low: 8000, high: 14000, defQty: 1, img: "pull-up-rig" },
+  { cat: "Flooring & rig", name: "Plyo boxes", note: "used, x3 mixed heights", low: 3500, high: 6000, defQty: 1, img: "plyo-boxes" },
+  { cat: "Flooring & rig", name: "Cardio-zone flooring (carpet/vinyl)", note: "used/renovation surplus", low: 25000, high: 35000, defQty: 1, img: "cardio-flooring" },
+
+  { cat: "Facility fixtures & fit-out", name: "Wall mirrors (mirrored wall install)", note: "used/salvaged from renovations", low: 30000, high: 40000, defQty: 1, img: "wall-mirrors" },
+  { cat: "Facility fixtures & fit-out", name: "Overhead LED light fixture", note: "used/refurbished", low: 1000, high: 1400, defQty: 20, img: "led-light-fixture" },
+  { cat: "Facility fixtures & fit-out", name: "HVAC / ventilation system", note: "used/reconditioned units", low: 100000, high: 140000, defQty: 1, img: "hvac-system" },
+  { cat: "Facility fixtures & fit-out", name: "Sound system (ceiling speakers + amp)", note: "used", low: 15000, high: 22000, defQty: 1, img: "sound-system" },
+  { cat: "Facility fixtures & fit-out", name: "CCTV security camera system", note: "used", low: 18000, high: 26000, defQty: 1, img: "cctv-system" },
+  { cat: "Facility fixtures & fit-out", name: "Key fob / access control system", note: "used/reconditioned", low: 35000, high: 45000, defQty: 1, img: "access-control" },
+
+  { cat: "Amenities & front-of-house", name: "Front desk / reception counter", note: "used/salvaged", low: 22000, high: 32000, defQty: 1, img: "front-desk" },
+  { cat: "Amenities & front-of-house", name: "Lockers", note: "per unit, used", low: 1000, high: 1400, defQty: 20, img: "lockers" },
+  { cat: "Amenities & front-of-house", name: "Restroom fixtures / renovation", note: "used fixtures, still needs labor", low: 70000, high: 90000, defQty: 1, img: "restroom-fixtures" },
+  { cat: "Amenities & front-of-house", name: "Water fountain / filtered station", note: "used", low: 10000, high: 15000, defQty: 1, img: "water-fountain" },
+  { cat: "Amenities & front-of-house", name: "Hand towels", note: "per dozen, bulk (consumable - always new)", low: 1200, high: 1200, defQty: 10, img: "hand-towels" },
+  { cat: "Amenities & front-of-house", name: "Equipment wipe-down station", note: "spray + paper towel dispenser (consumable - always new)", low: 1500, high: 1500, defQty: 4, img: "wipe-down-station" },
+  { cat: "Amenities & front-of-house", name: "Vending machine", note: "used, common resale item", low: 25000, high: 32000, defQty: 1, img: "vending-machine" },
+
+  { cat: "Signage & wayfinding", name: "LED exit sign", note: "used/older stock, per unit; 5 units", low: 450, high: 550, defQty: 5, img: "exit-signage" },
+  { cat: "Signage & wayfinding", name: "Zone / wayfinding signage package", note: "used, cosmetic wear likely", low: 8000, high: 10000, defQty: 1, img: "wayfinding-signage" },
+  { cat: "Signage & wayfinding", name: "Muscle-group instructional posters", note: "used, likely faded - budget new is safer", low: 5000, high: 7000, defQty: 1, img: "instructional-posters" },
+  { cat: "Signage & wayfinding", name: "AED unit + signage", note: "refurb market limited - buy new is strongly recommended for reliability", low: 60000, high: 70000, defQty: 1, img: "aed-unit" },
+
+  { cat: "Accessories & logistics", name: "Resistance band set", note: "used", low: 700, high: 1000, defQty: 1, img: "resistance-bands" },
+  { cat: "Accessories & logistics", name: "Agility ladder + cone kit", note: "used", low: 2500, high: 3500, defQty: 1, img: "agility-ladder" },
+  { cat: "Accessories & logistics", name: "Interval timer + portable speaker", note: "used", low: 2000, high: 3500, defQty: 1, img: "interval-timer" },
+  { cat: "Accessories & logistics", name: "First aid kit", note: "buy new regardless of tab - safety item", low: 1000, high: 1800, defQty: 1, img: "first-aid-kit" },
+];
+
+const fmt = n => Math.round(n).toLocaleString('en-PH');
+const money = php => `₱${fmt(php)} ($${Math.round(php / FX_RATE).toLocaleString('en-US')})`;
+function mid(item){ return Math.round((item.low + item.high) / 2); }
+function resolveSrc(img){ if(!img) return null; if(/^https?:\/\//i.test(img)) return img; return `images/${img}.jpg`; }
+
+const TABS = {
+  new: { data: DATA_NEW, label: 'new' },
+  used: { data: DATA_USED, label: 'used' },
+};
+Object.keys(TABS).forEach(key => {
+  TABS[key].state = TABS[key].data.map(d => ({ ...d, qty: d.defQty, checked: false }));
+  TABS[key].fullTotal = TABS[key].state.reduce((sum, item) => sum + mid(item) * item.defQty, 0);
+});
+let activeTab = 'new';
+
+// ---------- Theme toggle ----------
+const root = document.documentElement;
+const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+root.setAttribute('data-theme', prefersLight ? 'light' : 'dark');
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const current = root.getAttribute('data-theme');
+  root.setAttribute('data-theme', current === 'light' ? 'dark' : 'light');
+});
+
+// ---------- Tab switching ----------
+document.getElementById('tabNewBtn').addEventListener('click', () => switchTab('new'));
+document.getElementById('tabUsedBtn').addEventListener('click', () => switchTab('used'));
+
+function switchTab(tab){
+  activeTab = tab;
+  document.getElementById('tabNewBtn').classList.toggle('active', tab === 'new');
+  document.getElementById('tabUsedBtn').classList.toggle('active', tab === 'used');
+  document.getElementById('totalLabel').textContent = `Equipment running total (${tab})`;
+  document.getElementById('gtEquipLabel').textContent = `Equipment, ${tab} (one-time)`;
+  renderEquipment();
+  updateGrandTotal();
+}
+
+// ---------- Equipment checklist ----------
+function buildItem(item, idx){
+  const row = document.createElement('div');
+  row.className = 'item';
+  row.dataset.idx = idx;
+  const src = resolveSrc(item.img);
+  const iconSvg = ICONS[item.cat] || '';
+  const priceEach = mid(item);
+
+  row.innerHTML = `
+    <input type="checkbox" id="chk${idx}" aria-label="Mark ${item.name} as sourced">
+    <div class="thumb" id="thumb${idx}">
+      <img src="${src}" alt="${item.name}" loading="lazy">
+      <div class="fallback">${iconSvg}</div>
+    </div>
+    <label for="chk${idx}" class="item-name">${item.name}${item.note ? `<span class="note">${item.note}</span>` : ''}</label>
+    <div class="qty">
+      <button type="button" data-act="dec" aria-label="Decrease quantity">-</button>
+      <span data-qty>${item.defQty}</span>
+      <button type="button" data-act="inc" aria-label="Increase quantity">+</button>
+    </div>
+    <div class="price" data-price>${money(priceEach)} avg ea</div>
+  `;
+  const thumbEl = row.querySelector(`#thumb${idx}`);
+  thumbEl.querySelector('img').addEventListener('error', () => thumbEl.classList.add('no-photo'), { once: true });
+  return row;
+}
+
+function renderEquipment(){
+  const state = TABS[activeTab].state;
+  const container = document.getElementById('categories');
+  container.innerHTML = '';
+  CATEGORIES.forEach((cat, ci) => {
+    const catEl = document.createElement('div');
+    catEl.className = 'category';
+    const catItems = state.filter(i => i.cat === cat.name);
+    const catTotal = catItems.reduce((s, i) => s + mid(i) * i.defQty, 0);
+    catEl.innerHTML = `
+      <div class="cat-head">
+        <span class="cat-num">${String(ci + 1).padStart(2, '0')}</span>
+        <span class="cat-title">${cat.name}</span>
+        <span class="cat-sub">${cat.sub}</span>
+        <span class="cat-subtotal">≈ ${money(catTotal)}</span>
+      </div>
+      <div class="items"></div>
+    `;
+    const itemsContainer = catEl.querySelector('.items');
+    state.forEach((item, idx) => {
+      if(item.cat !== cat.name) return;
+      const row = buildItem(item, idx);
+      if(item.checked) row.classList.add('done');
+      row.querySelector('input').checked = item.checked;
+      row.querySelector('input').addEventListener('change', e => {
+        state[idx].checked = e.target.checked;
+        row.classList.toggle('done', e.target.checked);
+        updateEquipmentTotal(); updateGrandTotal();
+      });
+      row.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const act = btn.dataset.act;
+          if(act === 'inc') state[idx].qty += 1;
+          if(act === 'dec') state[idx].qty = Math.max(0, state[idx].qty - 1);
+          const lineTotal = mid(state[idx]) * state[idx].qty;
+          row.querySelector('[data-qty]').textContent = state[idx].qty;
+          row.querySelector('[data-price]').textContent = `${money(lineTotal)} avg`;
+          updateEquipmentTotal(); updateGrandTotal();
+        });
+      });
+      itemsContainer.appendChild(row);
+    });
+    container.appendChild(catEl);
+  });
+  document.getElementById('fullMark').textContent = `Full build-out ≈ ${money(TABS[activeTab].fullTotal)}`;
+  updateEquipmentTotal();
+}
+
+function equipmentTotal(){
+  const state = TABS[activeTab].state;
+  return state.reduce((sum, item) => item.checked ? sum + mid(item) * item.qty : sum, 0);
+}
+
+function updateEquipmentTotal(){
+  const total = equipmentTotal();
+  const fullTotal = TABS[activeTab].fullTotal;
+  document.getElementById('total').textContent = money(total);
+  const pct = fullTotal > 0 ? Math.min(100, (total / fullTotal) * 100) : 0;
+  document.getElementById('fill').style.width = pct + '%';
+  const statusEl = document.getElementById('statusLine');
+  const checkedCount = TABS[activeTab].state.filter(i => i.checked).length;
+  const fill = document.getElementById('fill');
+  if(total === 0){
+    statusEl.innerHTML = 'Nothing checked yet — tick items as you source or budget for them.';
+    fill.style.background = 'linear-gradient(90deg, var(--iron), var(--iron-bright))';
+  } else if(pct >= 100){
+    fill.style.background = 'linear-gradient(90deg, #6b8659, var(--ok))';
+    statusEl.innerHTML = `<strong>${money(total)}</strong> across ${checkedCount} item${checkedCount===1?'':'s'} — full build-out sourced.`;
+  } else {
+    fill.style.background = 'linear-gradient(90deg, var(--iron), var(--iron-bright))';
+    statusEl.innerHTML = `<strong>${money(total)}</strong> across ${checkedCount} item${checkedCount===1?'':'s'} — ${pct.toFixed(0)}% of estimated full build-out.`;
+  }
+}
+
+// ---------- Rent (shared across tabs) ----------
+const rentInput = document.getElementById('rentInput');
+function updateRent(){
+  const val = Math.max(0, Number(rentInput.value) || 0);
+  document.getElementById('rentResult').textContent = `${money(val)} / mo`;
+  updateGrandTotal();
+}
+rentInput.addEventListener('input', updateRent);
+
+// ---------- Staffing (shared across tabs) ----------
+let employees = [{ id: 1, days: 5, pay: 800 }];
+let nextEmpId = 2;
+
+function monthlyPay(emp){ return emp.days * 4.33 * emp.pay; }
+
+function renderEmployees(){
+  const list = document.getElementById('employeeList');
+  list.innerHTML = '';
+  employees.forEach((emp, idx) => {
+    const card = document.createElement('div');
+    card.className = 'emp-card';
+    const mPay = monthlyPay(emp);
+    card.innerHTML = `
+      <div class="emp-head">
+        <span class="emp-title">Employee #${idx + 1}</span>
+        ${employees.length > 1 ? `<button type="button" class="emp-remove" data-id="${emp.id}" aria-label="Remove employee">×</button>` : ''}
+      </div>
+      <div class="emp-fields">
+        <div class="emp-field">
+          <label for="days${emp.id}">Days / week</label>
+          <input type="number" id="days${emp.id}" min="0" max="7" step="1" value="${emp.days}">
+        </div>
+        <div class="emp-field">
+          <label for="pay${emp.id}">Pay / day (₱)</label>
+          <input type="number" id="pay${emp.id}" min="0" step="50" value="${emp.pay}">
+        </div>
+      </div>
+      <div class="emp-monthly">
+        <span class="emp-monthly-label">Monthly pay</span>
+        <span class="emp-monthly-value" id="empMonthly${emp.id}">${money(mPay)}</span>
+      </div>
+    `;
+    card.querySelector(`#days${emp.id}`).addEventListener('input', e => {
+      emp.days = Math.max(0, Number(e.target.value) || 0);
+      refreshEmployeeCard(emp);
+    });
+    card.querySelector(`#pay${emp.id}`).addEventListener('input', e => {
+      emp.pay = Math.max(0, Number(e.target.value) || 0);
+      refreshEmployeeCard(emp);
+    });
+    const removeBtn = card.querySelector('.emp-remove');
+    if(removeBtn){
+      removeBtn.addEventListener('click', () => {
+        employees = employees.filter(x => x.id !== emp.id);
+        renderEmployees();
+        updateGrandTotal();
+      });
+    }
+    list.appendChild(card);
+  });
+  updatePayrollTotal();
+}
+
+function refreshEmployeeCard(emp){
+  const mPay = monthlyPay(emp);
+  const el = document.getElementById(`empMonthly${emp.id}`);
+  if(el) el.textContent = money(mPay);
+  updatePayrollTotal();
+  updateGrandTotal();
+}
+
+function payrollTotal(){
+  return employees.reduce((sum, e) => sum + monthlyPay(e), 0);
+}
+
+function updatePayrollTotal(){
+  document.getElementById('payrollResult').textContent = money(payrollTotal());
+}
+
+document.getElementById('addEmpBtn').addEventListener('click', () => {
+  employees.push({ id: nextEmpId++, days: 5, pay: 800 });
+  renderEmployees();
+  updateGrandTotal();
+});
+
+// ---------- Grand total ----------
+function updateGrandTotal(){
+  const equip = equipmentTotal();
+  const rent = Math.max(0, Number(rentInput.value) || 0);
+  const payroll = payrollTotal();
+  const monthly = rent + payroll;
+  document.getElementById('gtEquip').textContent = money(equip);
+  document.getElementById('gtMonthly').textContent = money(monthly);
+}
+
+renderEquipment();
+updateRent();
+renderEmployees();
+updateGrandTotal();
+</script>
+
+</body>
+</html>
