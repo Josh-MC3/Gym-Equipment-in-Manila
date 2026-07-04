@@ -62,6 +62,8 @@ Recommended: square-ish photos, at least 200x200px, under 300KB each (resize/com
 | `sound-system.jpg` | Sound system |
 | `cctv-system.jpg` | CCTV security camera system |
 | `access-control.jpg` | Key fob / access control system |
+| `fitout-renovation.jpg` | Fit-out / renovation |
+| `backup-power.jpg` | Backup power (UPS / genset) |
 
 ## Amenities & front-of-house
 | Filename | Item |
@@ -73,6 +75,7 @@ Recommended: square-ish photos, at least 200x200px, under 300KB each (resize/com
 | `hand-towels.jpg` | Hand towels |
 | `wipe-down-station.jpg` | Equipment wipe-down station |
 | `vending-machine.jpg` | Vending machine |
+| `pos-hardware.jpg` | POS / front-desk hardware |
 
 ## Signage & wayfinding
 | Filename | Item |
@@ -89,6 +92,7 @@ Recommended: square-ish photos, at least 200x200px, under 300KB each (resize/com
 | `agility-ladder.jpg` | Agility ladder + cones |
 | `interval-timer.jpg` | Interval timer + speaker |
 | `first-aid-kit.jpg` | First aid kit |
+| `delivery-installation.jpg` | Equipment delivery + installation |
 
 ## Using a URL instead of a local file
 
@@ -101,3 +105,27 @@ img: "https://example.com/photos/my-kettlebells.jpg"
 ```
 
 Both formats work side by side - mix local files and URLs however you like.
+
+## Setup, legal & compliance
+| Filename | Item |
+|---|---|
+| `business-registration.jpg` | DTI / SEC business registration |
+| `mayors-permit.jpg` | Mayor's / business permit |
+| `fire-safety.jpg` | Fire safety inspection certificate |
+| `barangay-clearance.jpg` | Barangay clearance + sanitary permit |
+| `zoning-clearance.jpg` | Zoning / locational clearance |
+| `liability-insurance.jpg` | General liability insurance |
+| `liability-waiver.jpg` | Liability waiver drafting |
+| `trainer-certification.jpg` | Coach / trainer certification |
+
+## Branding & launch
+| Filename | Item |
+|---|---|
+| `brand-identity.jpg` | Logo + brand identity package |
+| `website-build.jpg` | Website + booking page setup |
+| `exterior-sign.jpg` | Exterior building sign / storefront |
+| `launch-campaign.jpg` | Grand-opening / pre-sale campaign |
+| `welcome-kit.jpg` | Branded member welcome kit |
+| `content-shoot.jpg` | Photo / video shoot for content |
+
+_Note: many Setup/Legal items are fees or services with no natural product photo — they'll just show the clean fallback icon, which is fine._

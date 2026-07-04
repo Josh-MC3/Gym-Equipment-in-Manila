@@ -249,6 +249,25 @@
   .grand-total-value{font-family:'IBM Plex Mono',monospace; font-size:14.5px; color:var(--chalk);}
   .grand-total-value.big{font-size:19px; font-weight:600; color:var(--iron-bright); text-shadow:0 0 14px color-mix(in srgb, var(--iron-bright) 30%, transparent);}
 
+  .fx-ctl{margin-top:10px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-dim); display:flex; align-items:center; gap:6px;}
+  .fx-ctl input{width:72px; padding:4px 6px; font-size:12px;}
+
+  .export-row{display:flex; gap:10px; flex-wrap:wrap; margin:18px 0 0;}
+  .export-row button{
+    flex:1; min-width:150px;
+    background:var(--surface-2); border:1px solid var(--line); color:var(--chalk);
+    font-family:'IBM Plex Mono',monospace; font-size:12px; text-transform:uppercase; letter-spacing:.05em;
+    padding:11px; border-radius:6px; cursor:pointer;
+  }
+  .export-row button:hover{border-color:var(--iron-bright); color:var(--iron-bright);}
+
+  @media print{
+    .theme-toggle, .tabbar-wrap, .export-row, .add-emp-btn, .emp-remove, .qty button{display:none !important;}
+    body::before{display:none;}
+    *{color:#000 !important; background:#fff !important; box-shadow:none !important; text-shadow:none !important;}
+    .barbell{position:static;}
+  }
+
   footer{max-width:760px;margin:0 auto; padding:20px; font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--text-dim); border-top:1px solid var(--line); line-height:1.6; position:relative; z-index:1;}
   footer a{color:var(--chalk-dim);}
 </style>
@@ -266,7 +285,7 @@
   <div class="wrap">
     <p class="eyebrow">Manifest No. 005 — Full Gym Build-Out</p>
     <h1><span class="accent">Franchise-Style</span> Equipment &amp; Fixtures</h1>
-    <p>Everything typically found in a franchise gym like Anytime Fitness, plus monthly rent and staffing. Prices shown as ₱[amount] ($[amount]) at approx ₱61.4/$1. Switch tabs below to compare buying new vs. sourcing used/pre-owned.</p>
+    <p>A full franchise-style build — equipment, fixtures, legal/permits, and branding — plus the monthly costs that keep the doors open (rent, staffing, utilities, software, marketing). Prices shown as ₱[amount] ($[amount]) at an adjustable FX rate (default ₱61.4/$1). Switch tabs to compare buying new vs. sourcing used/pre-owned.</p>
   </div>
 </header>
 
@@ -286,6 +305,7 @@
     <div class="track"><div class="fill" id="fill"></div></div>
     <div class="bb-marks"><span>₱0</span><span id="fullMark">Full build-out</span></div>
     <div class="status-line" id="statusLine">Nothing checked yet — tick items as you source or budget for them.</div>
+    <div class="fx-ctl">FX rate: ₱ <input type="number" id="fxInput" value="61.4" min="1" step="0.1"> per $1</div>
   </div>
 </div>
 
@@ -294,7 +314,7 @@
 <div class="wrap">
   <div class="overhead" id="rentSection">
     <div class="overhead-head"><span class="overhead-title">Rent / Mortgage</span></div>
-    <p class="overhead-note">Monthly space cost. Adjust to match your actual quote — QC secondary-area rates for a small floor run roughly ₱15,000-₱90,000/month depending on size and location. (Shared across both tabs — rent doesn't change based on new vs. used equipment.)</p>
+    <p class="overhead-note">Monthly space cost. Adjust to match your actual quote — QC secondary-area rates for a small floor run roughly ₱15,000-₱90,000/month depending on size and location. (Shared across both tabs — rent doesn't change based on new vs. used equipment.) PH landlords typically require several months upfront as deposit + advance — set that below; it feeds the one-time cash total.</p>
     <div class="field-card">
       <div class="field-row">
         <span class="field-label">Monthly amount</span>
@@ -305,16 +325,45 @@
         <div class="field-result" id="rentResult"></div>
       </div>
     </div>
+    <div class="field-card">
+      <div class="field-row">
+        <span class="field-label">Months upfront (deposit + advance)</span>
+        <div class="field-input-group">
+          <input type="number" id="rentMonths" value="5" min="0" max="12" step="1" style="width:80px;">
+        </div>
+        <div class="field-result" id="depositResult"></div>
+      </div>
+    </div>
   </div>
 
   <div class="overhead" id="staffSection">
     <div class="overhead-head"><span class="overhead-title">Staffing</span></div>
-    <p class="overhead-note">Add an employee card per staff member. Monthly pay = days/week x 4.33 (avg weeks/month) x pay/day. (Also shared across both tabs.)</p>
+    <p class="overhead-note">Add an employee card per staff member. Monthly pay = days/week x 4.33 (avg weeks/month) x pay/day. Totals below add the mandatory 13th-month accrual (+8.33%) and employer SSS/PhilHealth/Pag-IBIG contributions. (Also shared across both tabs.)</p>
     <div id="employeeList"></div>
     <button type="button" class="add-emp-btn" id="addEmpBtn"><span class="plus">+</span> Add employee</button>
+    <div class="field-card">
+      <div class="field-row">
+        <span class="field-label">Employer contributions %<span style="display:block;text-transform:none;letter-spacing:0;font-size:11px;color:var(--text-dim);margin-top:3px;font-family:'IBM Plex Sans',sans-serif;">SSS ~10% + PhilHealth 2.5% + Pag-IBIG 2% employer share; 13th-month accrual is added automatically</span></span>
+        <div class="field-input-group">
+          <input type="number" id="erPct" value="14.5" min="0" step="0.5" style="width:80px;">
+          <span class="prefix">%</span>
+        </div>
+        <div class="field-result" id="payrollBreakdown"></div>
+      </div>
+    </div>
     <div class="overhead-total">
-      <span class="overhead-total-label">Payroll total / mo</span>
+      <span class="overhead-total-label">Fully loaded payroll / mo</span>
       <span class="overhead-total-value" id="payrollResult"></span>
+    </div>
+  </div>
+
+  <div class="overhead" id="opexSection">
+    <div class="overhead-head"><span class="overhead-title">Monthly Operating Costs</span></div>
+    <p class="overhead-note">Recurring costs beyond rent and payroll that new owners routinely underestimate. These are ongoing monthly spend, not one-time buys — edit each to match your quotes. Defaults reflect typical small-QC-gym figures. (Shared across both tabs.)</p>
+    <div id="opexList"></div>
+    <div class="overhead-total">
+      <span class="overhead-total-label">Operating costs / mo</span>
+      <span class="overhead-total-value" id="opexResult"></span>
     </div>
   </div>
 
@@ -324,20 +373,71 @@
       <span class="grand-total-value" id="gtEquip"></span>
     </div>
     <div class="grand-total-row">
-      <span class="grand-total-label">Rent + Payroll (monthly)</span>
+      <span class="grand-total-label">Lease deposit + advance (one-time)</span>
+      <span class="grand-total-value" id="gtDeposit"></span>
+    </div>
+    <div class="grand-total-row">
+      <span class="grand-total-label">Total one-time cash needed</span>
+      <span class="grand-total-value big" id="gtOneTime"></span>
+    </div>
+    <div class="grand-total-row">
+      <span class="grand-total-label">Rent + Payroll + Opex (monthly)</span>
       <span class="grand-total-value big" id="gtMonthly"></span>
     </div>
+    <div class="grand-total-row">
+      <span class="grand-total-label">Suggested cash reserve (3-6 mo of monthly)</span>
+      <span class="grand-total-value" id="gtReserve"></span>
+    </div>
+  </div>
+
+  <div class="overhead" id="breakevenSection">
+    <div class="overhead-head"><span class="overhead-title">Breakeven Calculator</span></div>
+    <p class="overhead-note">Costs are only half the model. Set your average membership price and expected paying members to see monthly profit/loss, how many members cover your monthly costs, and how long it takes to earn back your one-time capital.</p>
+    <div class="field-card">
+      <div class="field-row">
+        <span class="field-label">Avg membership price / mo</span>
+        <div class="field-input-group"><span class="prefix">₱</span><input type="number" id="bePrice" value="2500" min="0" step="100"></div>
+        <div class="field-result" id="bePriceRes"></div>
+      </div>
+    </div>
+    <div class="field-card">
+      <div class="field-row">
+        <span class="field-label">Paying members</span>
+        <div class="field-input-group"><input type="number" id="beMembers" value="100" min="0" step="5" style="width:110px;"></div>
+        <div class="field-result" id="beRevenue"></div>
+      </div>
+    </div>
+    <div class="grand-total">
+      <div class="grand-total-row">
+        <span class="grand-total-label">Monthly profit / loss</span>
+        <span class="grand-total-value big" id="beProfit"></span>
+      </div>
+      <div class="grand-total-row">
+        <span class="grand-total-label">Members needed to break even</span>
+        <span class="grand-total-value" id="beNeeded"></span>
+      </div>
+      <div class="grand-total-row">
+        <span class="grand-total-label">Payback on one-time capital</span>
+        <span class="grand-total-value" id="bePayback"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="export-row">
+    <button type="button" id="printBtn">Print / Save PDF</button>
+    <button type="button" id="csvBtn">Download CSV</button>
+    <button type="button" id="resetBtn">Reset saved data</button>
   </div>
 </div>
 
 <footer>
   Prices are estimated PHP averages for the Philippine market — actual costs vary by supplier, condition, region, and negotiated wages. Confirm current quotes and a live FX rate before committing capital.<br>
   Add your own photos — see <a href="images/README.md">images/README.md</a> for filenames (shared between both tabs).<br>
-  Light/dark mode follows your system preference by default and resets on reload (no cookies or local storage used). Tab selection also resets on reload.
+  Your progress — checked items, quantities, costs, FX rate, theme, and tab — saves automatically in this browser. Use "Reset saved data" above to clear it and start fresh.
 </footer>
 
 <script>
-const FX_RATE = 61.4; // PHP per 1 USD, approx July 2026 mid-market rate
+let FX_RATE = 61.4; // PHP per 1 USD (editable in the UI; default approx July 2026 mid-market)
 
 const CATEGORIES = [
   { name: "Free weights & strength", sub: "core of the session" },
@@ -349,6 +449,8 @@ const CATEGORIES = [
   { name: "Amenities & front-of-house", sub: "member experience" },
   { name: "Signage & wayfinding", sub: "safety & navigation" },
   { name: "Accessories & logistics", sub: "the last 10%" },
+  { name: "Setup, legal & compliance", sub: "the boring, mandatory stuff" },
+  { name: "Branding & launch", sub: "getting the first members" },
 ];
 
 const ICONS = {
@@ -360,7 +462,9 @@ const ICONS = {
   "Facility fixtures & fit-out": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3 11.2c.6.4 1 1.1 1 1.8h4c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3Z"/></svg>`,
   "Amenities & front-of-house": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4"/><path d="M10.5 11.5 20 2M16 6l2 2M13 9l2 2"/></svg>`,
   "Signage & wayfinding": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h13M13 6l6 6-6 6"/></svg>`,
-  "Accessories & logistics": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h18v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8Z"/><path d="M8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`
+  "Accessories & logistics": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h18v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8Z"/><path d="M8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
+  "Setup, legal & compliance": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M9 13l2 2 4-4"/></svg>`,
+  "Branding & launch": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 14v-3zM3 11v3M11.5 8.5v9"/><path d="M6 12v4a1 1 0 0 0 1 1h2"/></svg>`
 };
 
 // ---------- NEW equipment pricing ----------
@@ -388,13 +492,13 @@ const DATA_NEW = [
   { cat: "Conditioning & functional", name: "Rowing machine (commercial)", note: "Stark Fitness PH SF-SC-ROW1", low: 151000, high: 151000, defQty: 1, img: "rowing-machine" },
   { cat: "Conditioning & functional", name: "Air bike / assault bike", low: 12000, high: 18000, defQty: 1, img: "air-bike" },
   { cat: "Conditioning & functional", name: "Battle rope", low: 2000, high: 3500, defQty: 1, img: "battle-rope" },
-  { cat: "Conditioning & functional", name: "Slam balls / medicine balls, set", note: "Stark Fitness PH, from P850/unit", low: 3000, high: 3000, defQty: 1, img: "slam-balls" },
+  { cat: "Conditioning & functional", name: "Slam balls / medicine balls, set", note: "Stark Fitness PH, from ₱850/unit", low: 3000, high: 3000, defQty: 1, img: "slam-balls" },
   { cat: "Conditioning & functional", name: "Jump ropes", note: "x10, Stark Fitness PH avg (PVC/steel/digital)", low: 4000, high: 4000, defQty: 1, img: "jump-ropes" },
   { cat: "Conditioning & functional", name: "TRX-style suspension trainer", note: "Stark Fitness PH Cross Suspension Trainer", low: 2800, high: 2800, defQty: 3, img: "trx-trainer" },
   { cat: "Conditioning & functional", name: "Foam rollers, set", low: 1500, high: 1500, defQty: 1, img: "foam-rollers" },
   { cat: "Conditioning & functional", name: "Stretch / yoga mats", low: 500, high: 500, defQty: 10, img: "stretch-mats" },
 
-  { cat: "Flooring & rig", name: "Rubber floor mat (1m x 1m tile)", note: "Stark Fitness PH retail rate, ~P2,500/sqm - qty = sqm needed", low: 2500, high: 2500, defQty: 100, img: "rubber-flooring" },
+  { cat: "Flooring & rig", name: "Rubber floor mat (1m x 1m tile)", note: "Stark Fitness PH retail rate, ~₱2,500/sqm - qty = sqm needed", low: 2500, high: 2500, defQty: 100, img: "rubber-flooring" },
   { cat: "Flooring & rig", name: "Pull-up rig / frame", low: 10000, high: 18000, defQty: 1, img: "pull-up-rig" },
   { cat: "Flooring & rig", name: "Plyo boxes", note: "x3, mixed heights", low: 4500, high: 7500, defQty: 1, img: "plyo-boxes" },
   { cat: "Flooring & rig", name: "Cardio-zone flooring (carpet/vinyl)", low: 60000, high: 60000, defQty: 1, img: "cardio-flooring" },
@@ -414,15 +518,36 @@ const DATA_NEW = [
   { cat: "Amenities & front-of-house", name: "Equipment wipe-down station", note: "spray + paper towel dispenser (consumable)", low: 1500, high: 1500, defQty: 4, img: "wipe-down-station" },
   { cat: "Amenities & front-of-house", name: "Vending machine", low: 60000, high: 60000, defQty: 1, img: "vending-machine" },
 
-  { cat: "Signage & wayfinding", name: "LED exit sign", note: "PH market avg, ~P415-P1,100/unit range; 5 units", low: 800, high: 800, defQty: 5, img: "exit-signage" },
+  { cat: "Signage & wayfinding", name: "LED exit sign", note: "PH market avg, ~₱415-₱1,100/unit range; 5 units", low: 800, high: 800, defQty: 5, img: "exit-signage" },
   { cat: "Signage & wayfinding", name: "Zone / wayfinding signage package", low: 15000, high: 15000, defQty: 1, img: "wayfinding-signage" },
   { cat: "Signage & wayfinding", name: "Muscle-group instructional posters", low: 10000, high: 10000, defQty: 1, img: "instructional-posters" },
   { cat: "Signage & wayfinding", name: "AED unit + signage", low: 90000, high: 90000, defQty: 1, img: "aed-unit" },
 
-  { cat: "Accessories & logistics", name: "Resistance band set", note: "Stark Fitness PH, from P200/band", low: 1200, high: 1200, defQty: 1, img: "resistance-bands" },
+  { cat: "Accessories & logistics", name: "Resistance band set", note: "Stark Fitness PH, from ₱200/band", low: 1200, high: 1200, defQty: 1, img: "resistance-bands" },
   { cat: "Accessories & logistics", name: "Agility ladder + cone kit", note: "Stark Fitness PH Speedstep Ladder + Quick Cone Kit", low: 5200, high: 5200, defQty: 1, img: "agility-ladder" },
   { cat: "Accessories & logistics", name: "Interval timer + portable speaker", low: 3000, high: 5000, defQty: 1, img: "interval-timer" },
   { cat: "Accessories & logistics", name: "First aid kit", note: "buy new regardless of tab - safety item", low: 1000, high: 1800, defQty: 1, img: "first-aid-kit" },
+
+  { cat: "Facility fixtures & fit-out", name: "Fit-out / renovation (labor & materials)", note: "warm-shell ~150sqm estimate - bare shell costs far more; get contractor quotes", low: 300000, high: 300000, defQty: 1, img: "fitout-renovation" },
+  { cat: "Facility fixtures & fit-out", name: "Backup power (UPS / small genset)", note: "desk, access control & emergency lights - brownout protection", low: 60000, high: 60000, defQty: 1, img: "backup-power" },
+  { cat: "Amenities & front-of-house", name: "POS / front-desk hardware", note: "PC or tablet, receipt printer, QR scanner", low: 35000, high: 35000, defQty: 1, img: "pos-hardware" },
+  { cat: "Accessories & logistics", name: "Equipment delivery + installation", note: "heavy machines - get quotes before committing", low: 25000, high: 25000, defQty: 1, img: "delivery-installation" },
+
+  { cat: "Setup, legal & compliance", name: "DTI / SEC business registration", note: "sole prop ~₱500; corp higher (SEC + docs)", low: 2000, high: 2000, defQty: 1, img: "business-registration" },
+  { cat: "Setup, legal & compliance", name: "Mayor's / business permit (QC BPLO)", note: "annual; scales with floor area & receipts", low: 8000, high: 8000, defQty: 1, img: "mayors-permit" },
+  { cat: "Setup, legal & compliance", name: "Fire safety inspection certificate", note: "BFP; required before opening", low: 1500, high: 1500, defQty: 1, img: "fire-safety" },
+  { cat: "Setup, legal & compliance", name: "Barangay clearance + sanitary permit", low: 1500, high: 1500, defQty: 1, img: "barangay-clearance" },
+  { cat: "Setup, legal & compliance", name: "Zoning / locational clearance", low: 1000, high: 1000, defQty: 1, img: "zoning-clearance" },
+  { cat: "Setup, legal & compliance", name: "General liability insurance", note: "annual premium; protects vs member injury claims", low: 45000, high: 45000, defQty: 1, img: "liability-insurance" },
+  { cat: "Setup, legal & compliance", name: "Liability waiver drafting (legal)", note: "one-time; lawyer-drafted member waiver", low: 8000, high: 8000, defQty: 1, img: "liability-waiver" },
+  { cat: "Setup, legal & compliance", name: "Coach / trainer certification", note: "per coach; credibility & insurance requirement", low: 15000, high: 15000, defQty: 2, img: "trainer-certification" },
+
+  { cat: "Branding & launch", name: "Logo + brand identity package", note: "logo, colors, brand guide - DIY cheaper", low: 15000, high: 15000, defQty: 1, img: "brand-identity" },
+  { cat: "Branding & launch", name: "Website + booking page setup", note: "one-time build; template-based end", low: 25000, high: 25000, defQty: 1, img: "website-build" },
+  { cat: "Branding & launch", name: "Exterior building sign / storefront", note: "large format; separate from wayfinding", low: 40000, high: 40000, defQty: 1, img: "exterior-sign" },
+  { cat: "Branding & launch", name: "Grand-opening / pre-sale campaign", note: "flyers, ads, launch promo - drives day-1 members", low: 30000, high: 30000, defQty: 1, img: "launch-campaign" },
+  { cat: "Branding & launch", name: "Branded member welcome kit", note: "per kit: shirt, towel, bottle - retention & referrals", low: 600, high: 600, defQty: 30, img: "welcome-kit" },
+  { cat: "Branding & launch", name: "Photo / video shoot for content", note: "one-time; social & ad creative", low: 12000, high: 12000, defQty: 1, img: "content-shoot" },
 ];
 
 // ---------- USED / PRE-OWNED equipment pricing ----------
@@ -485,6 +610,27 @@ const DATA_USED = [
   { cat: "Accessories & logistics", name: "Agility ladder + cone kit", note: "used", low: 2500, high: 3500, defQty: 1, img: "agility-ladder" },
   { cat: "Accessories & logistics", name: "Interval timer + portable speaker", note: "used", low: 2000, high: 3500, defQty: 1, img: "interval-timer" },
   { cat: "Accessories & logistics", name: "First aid kit", note: "buy new regardless of tab - safety item", low: 1000, high: 1800, defQty: 1, img: "first-aid-kit" },
+
+  { cat: "Facility fixtures & fit-out", name: "Fit-out / renovation (labor & materials)", note: "leaner: DIY paint, salvaged materials, warm shell", low: 150000, high: 150000, defQty: 1, img: "fitout-renovation" },
+  { cat: "Facility fixtures & fit-out", name: "Backup power (UPS / small genset)", note: "used/refurb - load-test before buying", low: 30000, high: 30000, defQty: 1, img: "backup-power" },
+  { cat: "Amenities & front-of-house", name: "POS / front-desk hardware", note: "used/refurb PC + printer", low: 18000, high: 18000, defQty: 1, img: "pos-hardware" },
+  { cat: "Accessories & logistics", name: "Equipment delivery + installation", note: "self-haul / truck rental + crew", low: 12000, high: 12000, defQty: 1, img: "delivery-installation" },
+
+  { cat: "Setup, legal & compliance", name: "DTI / SEC business registration", note: "same fee regardless - gov't cost", low: 2000, high: 2000, defQty: 1, img: "business-registration" },
+  { cat: "Setup, legal & compliance", name: "Mayor's / business permit (QC BPLO)", note: "same fee regardless - annual LGU cost", low: 8000, high: 8000, defQty: 1, img: "mayors-permit" },
+  { cat: "Setup, legal & compliance", name: "Fire safety inspection certificate", note: "same fee regardless - BFP cost", low: 1500, high: 1500, defQty: 1, img: "fire-safety" },
+  { cat: "Setup, legal & compliance", name: "Barangay clearance + sanitary permit", note: "same fee regardless", low: 1500, high: 1500, defQty: 1, img: "barangay-clearance" },
+  { cat: "Setup, legal & compliance", name: "Zoning / locational clearance", note: "same fee regardless", low: 1000, high: 1000, defQty: 1, img: "zoning-clearance" },
+  { cat: "Setup, legal & compliance", name: "General liability insurance", note: "same premium - don't skimp on coverage", low: 45000, high: 45000, defQty: 1, img: "liability-insurance" },
+  { cat: "Setup, legal & compliance", name: "Liability waiver drafting (legal)", note: "same cost - one-time legal work", low: 8000, high: 8000, defQty: 1, img: "liability-waiver" },
+  { cat: "Setup, legal & compliance", name: "Coach / trainer certification", note: "same cost per coach - non-negotiable", low: 15000, high: 15000, defQty: 2, img: "trainer-certification" },
+
+  { cat: "Branding & launch", name: "Logo + brand identity package", note: "cheaper: freelancer/Fiverr vs agency", low: 5000, high: 5000, defQty: 1, img: "brand-identity" },
+  { cat: "Branding & launch", name: "Website + booking page setup", note: "cheaper: DIY template (Wix/Carrd)", low: 6000, high: 6000, defQty: 1, img: "website-build" },
+  { cat: "Branding & launch", name: "Exterior building sign / storefront", note: "cheaper: local signmaker, simpler build", low: 22000, high: 22000, defQty: 1, img: "exterior-sign" },
+  { cat: "Branding & launch", name: "Grand-opening / pre-sale campaign", note: "leaner: organic social + word of mouth", low: 12000, high: 12000, defQty: 1, img: "launch-campaign" },
+  { cat: "Branding & launch", name: "Branded member welcome kit", note: "per kit, leaner: sticker + towel only", low: 300, high: 300, defQty: 30, img: "welcome-kit" },
+  { cat: "Branding & launch", name: "Photo / video shoot for content", note: "cheaper: DIY phone content", low: 3000, high: 3000, defQty: 1, img: "content-shoot" },
 ];
 
 const fmt = n => Math.round(n).toLocaleString('en-PH');
@@ -509,6 +655,7 @@ root.setAttribute('data-theme', prefersLight ? 'light' : 'dark');
 document.getElementById('themeToggle').addEventListener('click', () => {
   const current = root.getAttribute('data-theme');
   root.setAttribute('data-theme', current === 'light' ? 'dark' : 'light');
+  saveState();
 });
 
 // ---------- Tab switching ----------
@@ -633,11 +780,63 @@ function updateEquipmentTotal(){
 // ---------- Rent (shared across tabs) ----------
 const rentInput = document.getElementById('rentInput');
 function updateRent(){
-  const val = Math.max(0, Number(rentInput.value) || 0);
+  const val = currentRent();
+  const months = currentDepositMonths();
   document.getElementById('rentResult').textContent = `${money(val)} / mo`;
+  document.getElementById('depositResult').textContent = `${money(val * months)} one-time`;
   updateGrandTotal();
 }
 rentInput.addEventListener('input', updateRent);
+document.getElementById('rentMonths').addEventListener('input', updateRent);
+
+// ---------- Monthly operating costs (shared across tabs) ----------
+// Recurring monthly spend. Defaults reflect typical small QC gym figures (PHP/mo).
+const OPEX = [
+  { id: 'utilities', label: 'Utilities (electric, water)', note: 'AC + lighting is the big driver; higher if 24/7', value: 25000 },
+  { id: 'software', label: 'Gym management software', note: 'billing, check-in, bookings (e.g. Memberlytic, GCash/Maya)', value: 4000 },
+  { id: 'internet', label: 'Internet + phone', note: 'member WiFi + business line', value: 3000 },
+  { id: 'marketing', label: 'Marketing / ads', note: 'Meta/Google ads, boosted posts, ongoing lead gen', value: 15000 },
+  { id: 'cleaning', label: 'Cleaning + sanitation supplies', note: 'wipes, disinfectant, restroom consumables, labor', value: 8000 },
+  { id: 'maintenance', label: 'Equipment maintenance / repair reserve', note: 'belts, cables, upholstery - set aside monthly', value: 5000 },
+  { id: 'payment', label: 'Payment processing fees', note: 'card/e-wallet fees (~2-3% of revenue) - estimate', value: 6000 },
+  { id: 'misc', label: 'Miscellaneous buffer', note: 'the surprises that always come up', value: 5000 },
+];
+
+function renderOpex(){
+  const list = document.getElementById('opexList');
+  list.innerHTML = '';
+  OPEX.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'field-card';
+    card.innerHTML = `
+      <div class="field-row">
+        <span class="field-label">${item.label}${item.note ? `<span style="display:block;text-transform:none;letter-spacing:0;font-size:11px;color:var(--text-dim);margin-top:3px;font-family:'IBM Plex Sans',sans-serif;">${item.note}</span>` : ''}</span>
+        <div class="field-input-group">
+          <span class="prefix">₱</span>
+          <input type="number" id="opex-${item.id}" min="0" step="500" value="${item.value}">
+        </div>
+        <div class="field-result" id="opexres-${item.id}">${money(item.value)} / mo</div>
+      </div>
+    `;
+    const input = card.querySelector(`#opex-${item.id}`);
+    input.addEventListener('input', e => {
+      item.value = Math.max(0, Number(e.target.value) || 0);
+      document.getElementById(`opexres-${item.id}`).textContent = `${money(item.value)} / mo`;
+      updateOpexTotal();
+      updateGrandTotal();
+    });
+    list.appendChild(card);
+  });
+  updateOpexTotal();
+}
+
+function opexTotal(){
+  return OPEX.reduce((sum, o) => sum + (Number(o.value) || 0), 0);
+}
+
+function updateOpexTotal(){
+  document.getElementById('opexResult').textContent = money(opexTotal());
+}
 
 // ---------- Staffing (shared across tabs) ----------
 let employees = [{ id: 1, days: 5, pay: 800 }];
@@ -701,13 +900,24 @@ function refreshEmployeeCard(emp){
   updateGrandTotal();
 }
 
-function payrollTotal(){
+function basePayrollTotal(){
   return employees.reduce((sum, e) => sum + monthlyPay(e), 0);
 }
 
-function updatePayrollTotal(){
-  document.getElementById('payrollResult').textContent = money(payrollTotal());
+function erRate(){ return Math.max(0, Number(document.getElementById('erPct').value) || 0) / 100; }
+
+function payrollTotal(){
+  return basePayrollTotal() * (1 + 1/12 + erRate());
 }
+
+function updatePayrollTotal(){
+  const base = basePayrollTotal();
+  const t13 = base / 12;
+  const er = base * erRate();
+  document.getElementById('payrollResult').textContent = money(base + t13 + er);
+  document.getElementById('payrollBreakdown').textContent = `₱${fmt(base)} base + ₱${fmt(t13)} 13th + ₱${fmt(er)} contrib`;
+}
+document.getElementById('erPct').addEventListener('input', () => { updatePayrollTotal(); updateGrandTotal(); });
 
 document.getElementById('addEmpBtn').addEventListener('click', () => {
   employees.push({ id: nextEmpId++, days: 5, pay: 800 });
@@ -716,17 +926,138 @@ document.getElementById('addEmpBtn').addEventListener('click', () => {
 });
 
 // ---------- Grand total ----------
+function currentRent(){ return Math.max(0, Number(rentInput.value) || 0); }
+function currentDepositMonths(){ return Math.max(0, Number(document.getElementById('rentMonths').value) || 0); }
+function monthlyTotal(){ return currentRent() + payrollTotal() + opexTotal(); }
+
 function updateGrandTotal(){
   const equip = equipmentTotal();
-  const rent = Math.max(0, Number(rentInput.value) || 0);
-  const payroll = payrollTotal();
-  const monthly = rent + payroll;
+  const deposit = currentRent() * currentDepositMonths();
+  const monthly = monthlyTotal();
   document.getElementById('gtEquip').textContent = money(equip);
+  document.getElementById('gtDeposit').textContent = money(deposit);
+  document.getElementById('gtOneTime').textContent = money(equip + deposit);
   document.getElementById('gtMonthly').textContent = money(monthly);
+  document.getElementById('gtReserve').textContent = `${money(monthly * 3)} – ${money(monthly * 6)}`;
+  updateBreakeven();
+  saveState();
 }
 
-renderEquipment();
+// ---------- Breakeven ----------
+function updateBreakeven(){
+  const price = Math.max(0, Number(document.getElementById('bePrice').value) || 0);
+  const members = Math.max(0, Number(document.getElementById('beMembers').value) || 0);
+  const monthly = monthlyTotal();
+  const revenue = price * members;
+  const profit = revenue - monthly;
+  document.getElementById('bePriceRes').textContent = `${money(price)} / member`;
+  document.getElementById('beRevenue').textContent = `${money(revenue)} / mo revenue`;
+  const profitEl = document.getElementById('beProfit');
+  profitEl.textContent = `${profit < 0 ? '-' : '+'}${money(Math.abs(profit))} / mo`;
+  profitEl.style.color = profit < 0 ? '#d64545' : 'var(--ok)';
+  document.getElementById('beNeeded').textContent = price > 0 ? `${Math.ceil(monthly / price)} members` : '—';
+  const oneTime = equipmentTotal() + currentRent() * currentDepositMonths();
+  document.getElementById('bePayback').textContent = profit > 0 ? `~${Math.ceil(oneTime / profit)} months` : 'not yet profitable at these inputs';
+}
+document.getElementById('bePrice').addEventListener('input', updateGrandTotal);
+document.getElementById('beMembers').addEventListener('input', updateGrandTotal);
+
+// ---------- Persistence (saves in this browser; safe no-op if unavailable) ----------
+const LS_KEY = 'gymManifest_v1';
+function saveState(){
+  try{
+    const s = {
+      fx: FX_RATE,
+      tab: activeTab,
+      theme: root.getAttribute('data-theme'),
+      rent: rentInput.value,
+      rentMonths: document.getElementById('rentMonths').value,
+      erPct: document.getElementById('erPct').value,
+      bePrice: document.getElementById('bePrice').value,
+      beMembers: document.getElementById('beMembers').value,
+      opex: OPEX.map(o => o.value),
+      employees: employees.map(e => ({ days: e.days, pay: e.pay })),
+      items: {
+        new: TABS.new.state.map(i => ({ c: i.checked, q: i.qty })),
+        used: TABS.used.state.map(i => ({ c: i.checked, q: i.qty }))
+      }
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(s));
+  }catch(e){ /* storage unavailable - tool runs fine without saving */ }
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return;
+    const s = JSON.parse(raw);
+    if(typeof s.fx === 'number' && s.fx > 0){ FX_RATE = s.fx; document.getElementById('fxInput').value = s.fx; }
+    if(s.theme === 'light' || s.theme === 'dark') root.setAttribute('data-theme', s.theme);
+    if(s.rent !== undefined) rentInput.value = s.rent;
+    if(s.rentMonths !== undefined) document.getElementById('rentMonths').value = s.rentMonths;
+    if(s.erPct !== undefined) document.getElementById('erPct').value = s.erPct;
+    if(s.bePrice !== undefined) document.getElementById('bePrice').value = s.bePrice;
+    if(s.beMembers !== undefined) document.getElementById('beMembers').value = s.beMembers;
+    if(Array.isArray(s.opex) && s.opex.length === OPEX.length) OPEX.forEach((o, i) => { o.value = Math.max(0, Number(s.opex[i]) || 0); });
+    if(Array.isArray(s.employees) && s.employees.length > 0){
+      employees = s.employees.map((e, i) => ({ id: i + 1, days: Math.max(0, Number(e.days) || 0), pay: Math.max(0, Number(e.pay) || 0) }));
+      nextEmpId = employees.length + 1;
+    }
+    ['new', 'used'].forEach(key => {
+      const saved = s.items && s.items[key];
+      if(Array.isArray(saved) && saved.length === TABS[key].state.length){
+        TABS[key].state.forEach((item, i) => { item.checked = !!saved[i].c; item.qty = Math.max(0, Number(saved[i].q) || 0); });
+      }
+    });
+    if(s.tab === 'new' || s.tab === 'used') activeTab = s.tab;
+  }catch(e){ /* corrupted or unavailable - start fresh */ }
+}
+
+// ---------- Export ----------
+document.getElementById('printBtn').addEventListener('click', () => window.print());
+document.getElementById('csvBtn').addEventListener('click', () => {
+  const state = TABS[activeTab].state;
+  const rows = [['Category', 'Item', 'Checked', 'Qty', 'Avg unit (PHP)', 'Line total (PHP)', 'Line total (USD)']];
+  state.forEach(i => {
+    const line = mid(i) * i.qty;
+    rows.push([i.cat, i.name, i.checked ? 'yes' : 'no', i.qty, mid(i), line, Math.round(line / FX_RATE)]);
+  });
+  rows.push([]);
+  rows.push(['SUMMARY', `Tab: ${activeTab}`]);
+  rows.push(['Equipment checked, one-time (PHP)', equipmentTotal()]);
+  rows.push(['Lease deposit + advance (PHP)', currentRent() * currentDepositMonths()]);
+  rows.push(['Monthly total rent+payroll+opex (PHP)', Math.round(monthlyTotal())]);
+  rows.push(['FX rate (PHP per USD)', FX_RATE]);
+  const csv = '\uFEFF' + rows.map(r => r.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `gym-manifest-${activeTab}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if(!confirm('Clear all saved progress and reload with defaults?')) return;
+  try{ localStorage.removeItem(LS_KEY); }catch(e){}
+  location.reload();
+});
+
+// ---------- FX rate ----------
+document.getElementById('fxInput').addEventListener('input', e => {
+  const v = Number(e.target.value);
+  if(v > 0) FX_RATE = v;
+  switchTab(activeTab);
+  updateRent();
+  renderOpex();
+  renderEmployees();
+  updateGrandTotal();
+});
+
+// ---------- Init ----------
+loadState();
+switchTab(activeTab);
 updateRent();
+renderOpex();
 renderEmployees();
 updateGrandTotal();
 </script>
